@@ -1,106 +1,126 @@
-# Next Architecture
+<div align="center">
 
-CLI и monorepo для Next.js 16 в стиле Feature-Sliced Design.
+# 🏗️ next-arch
 
-## Структура
+**Архитектурные правила для Next.js 16 — чтобы ИИ и коллеги не могли сломать структуру проекта**
+
+[![npm](https://img.shields.io/npm/v/next-arch?style=flat-square&color=black)](https://www.npmjs.com/package/next-arch)
+[![npm](https://img.shields.io/npm/v/eslint-plugin-next-arch?style=flat-square&color=purple&label=eslint-plugin)](https://www.npmjs.com/package/eslint-plugin-next-arch)
+[![license](https://img.shields.io/github/license/yousxlfs/next-arch?style=flat-square)](./LICENSE)
+
+[Быстрый старт](#-быстрый-старт) · [Архитектура](#-слои) · [ESLint правила](#-eslint-плагин) · [🇬🇧 Read in English](./README.md)
+
+</div>
+
+---
+
+## 😤 Проблема
+
+Next.js даёт полную свободу. В этом и проблема.
+
+Через пару недель активной разработки с ИИ проект выглядит примерно так:
 
 ```
-next-arch/
-├── packages/next-arch/              # CLI (next-arch)
-├── packages/eslint-plugin-next-arch/ # ESLint-правила архитектуры
-├── examples/next-app/               # эталонное приложение
-└── turbo.json
+components/
+  UserCard.tsx
+  useAuth.ts        ← хук в папке компонентов?
+  fetchProducts.ts  ← апи-запрос рядом с UI?
+  CartModal.tsx
+app/
+  page.tsx          ← 400 строк перемешанной логики
 ```
 
-## Быстрый старт
+Нет правил → нет структуры → ИИ ломает архитектуру при каждой генерации.
+
+Angular решает это из коробки. Next.js — нет.
+
+**next-arch это исправляет.**
+
+---
+
+## ✅ Решение
+
+CLI который разворачивает проект по [Feature-Sliced Design](https://feature-sliced.design/), адаптированному под Next.js 16 App Router — плюс ESLint плагин который автоматически защищает правила архитектуры.
 
 ```bash
-pnpm install
-pnpm build
+# неправильный импорт — ESLint поймает сразу
+import { useCart } from '../cart/hooks/useCart'
+#                        ^^^^ next-arch/no-cross-feature-imports
+# Ошибка: прямые импорты между фичами запрещены.
+# Используй shared/ или передавай данные через props.
 ```
 
-### Создать новый проект
+ИИ не сможет сломать архитектуру — линтер просто не даст собрать проект.
+
+---
+
+## 📦 Пакеты
+
+| Пакет | Версия | Описание |
+|---|---|---|
+| [`next-arch`](./packages/next-arch) | [![npm](https://img.shields.io/npm/v/next-arch?style=flat-square)](https://npmjs.com/package/next-arch) | CLI — создаёт проекты и слайсы |
+| [`eslint-plugin-next-arch`](./packages/eslint-plugin-next-arch) | [![npm](https://img.shields.io/npm/v/eslint-plugin-next-arch?style=flat-square)](https://npmjs.com/package/eslint-plugin-next-arch) | ESLint правила — защита архитектуры |
+
+---
+
+## ⚡ Быстрый старт
 
 ```bash
-pnpm --filter next-arch exec node dist/index.js init my-app
+npx next-arch init my-app
 cd my-app
 pnpm install
 pnpm dev
 ```
 
-Или после глобальной установки:
-
-```bash
-next-arch init my-app
-```
-
 ### Сгенерировать слайс
 
-Запускай из **корня Next.js проекта** (`examples/next-app/`), где есть `src/`:
-
 ```bash
-cd next-arch/examples/next-app
-
-# самый простой способ
-pnpm arch generate feature payments
-
-# или напрямую
-node ../../packages/next-arch/dist/index.js generate feature payments
+next-arch generate feature payments   # бизнес-фича
+next-arch generate view dashboard     # страница
+next-arch generate widget header      # крупный UI блок
+next-arch generate entity user        # доменная сущность
 ```
 
-Из любой папки monorepo можно указать путь к проекту:
+Каждая команда создаёт полностью типизированный слайс с правильной структурой папок — никакой ручной возни.
 
-```bash
-cd next-arch
-pnpm next-arch generate feature payments --cwd examples/next-app
+---
+
+## 🗂️ Слои
+
+Импорты идут **только сверху вниз**. Нижние слои не знают о верхних.
+
+```
+src/
+├── app/          # только роутинг Next.js — никакой логики здесь
+├── views/        # сборка страниц из фич
+├── widgets/      # крупные составные блоки (хедер, сайдбар, лента)
+├── features/     # изолированные бизнес-модули
+│   └── wishlist/
+│       ├── actions/     # Server Actions
+│       ├── components/  # UI фичи
+│       ├── hooks/       # клиентские хуки
+│       ├── queries/     # TanStack Query
+│       ├── types/       # TypeScript типы
+│       └── index.ts     # публичное API ← импортируй только отсюда
+├── entities/     # доменные модели — типы, zod схемы, базовый UI
+└── shared/       # никакой бизнес-логики — утилиты, ui kit, конфиг
+    ├── ui/       # Button, Input, Modal...
+    ├── lib/      # утилиты и хелперы
+    ├── api/      # fetcher, обработка ошибок
+    └── config/   # env, константы, роуты
 ```
 
-> `billing` уже создан ранее — используй другое имя или удали `src/features/billing`.
+---
 
-Глобальная команда `next-arch` (опционально, один раз):
+## 🛡️ ESLint Плагин
 
-```bash
-pnpm setup
-cd next-arch/packages/next-arch && pnpm link --global
-```
-
-Другие типы:
-
-```bash
-pnpm arch generate view dashboard
-pnpm arch generate widget header
-pnpm arch generate entity user
-```
-
-## Слои FSD
-
-| Слой | Путь | Назначение |
-|------|------|------------|
-| `app` | `src/app` | Роутинг Next.js |
-| `views` | `src/views` | Композиция страниц |
-| `widgets` | `src/widgets` | Крупные UI-блоки |
-| `features` | `src/features` | Бизнес-фичи |
-| `entities` | `src/entities` | Доменные сущности |
-| `shared` | `src/shared` | Общий код |
-
-## ESLint-плагин
-
-Пакет `eslint-plugin-next-arch` защищает архитектуру на этапе линтинга и `next build`.
-
-| Правило | Что запрещает |
-|---------|----------------|
-| `no-cross-feature-imports` | Прямые импорты между разными фичами |
-| `no-deep-imports` | Импорт внутрь чужой фичи мимо `index.ts` |
-| `no-server-in-client` | Серверный код в файлах с `'use client'` |
-| `no-upward-imports` | Импорт верхних слоёв из нижних (`shared` → `features` и т.д.) |
-
-Подключение в `eslint.config.mjs`:
+Четыре правила которые защищают архитектуру на этапе линтинга и `next build`.
 
 ```js
+// eslint.config.mjs
 import nextArch from "eslint-plugin-next-arch";
 
 export default defineConfig([
-  // ...eslint-config-next
   {
     plugins: { "next-arch": nextArch },
     rules: {
@@ -113,10 +133,44 @@ export default defineConfig([
 ]);
 ```
 
-## Скрипты monorepo
+| Правило | Что запрещает |
+|---|---|
+| `no-cross-feature-imports` | `features/auth` импортирует из `features/cart` |
+| `no-deep-imports` | `features/auth/hooks/useUser` — используй `index.ts` |
+| `no-server-in-client` | серверный код (`db`, `server-only`) в файлах с `'use client'` |
+| `no-upward-imports` | `shared/` импортирует из `features/` или выше |
 
-| Команда | Описание |
-|---------|----------|
-| `pnpm dev` | Запуск dev-режима через Turbo |
-| `pnpm build` | Сборка всех пакетов |
-| `pnpm lint` | Линтинг |
+---
+
+## 🔥 Пример приложения
+
+Смотри [`examples/next-app`](./examples/next-app) — реальный Next.js 16 проект построенный по этой архитектуре.
+
+---
+
+## 🛠️ Скрипты монорепо
+
+```bash
+pnpm install   # установить зависимости
+pnpm build     # собрать все пакеты
+pnpm dev       # dev режим через Turbo
+pnpm lint      # линтинг
+```
+
+---
+
+## 🤝 Как помочь проекту
+
+Любые контрибьюции приветствуются. Смотри [CONTRIBUTING.md](./CONTRIBUTING.md).
+
+Задачи с меткой [`good first issue`](https://github.com/yousxlfs/next-arch/issues?q=label%3A%22good+first+issue%22) — отличное место чтобы начать.
+
+---
+
+<div align="center">
+
+Сделано [angelos](https://github.com/yousxlfs) · MIT License
+
+**Если проект помог — поставь ⭐**
+
+</div>
