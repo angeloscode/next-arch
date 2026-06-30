@@ -1,10 +1,22 @@
 # Changelog
 
+## v0.2.0 — 2026-06-29
+
+### Added
+
+- **Interactive `init`** — package selection via `@clack/prompts` (state, forms, optional deps)
+  - `-y` / `--yes` — default selections without prompts
+  - `--no-examples` — skip commented example files
+- **`page` command** — full FSD page scaffolding with presets: `auth`, `dashboard`, `crud`, `profile`, `settings`, `blank`
+- **`generate page`** — alias for page generation
+- **`templates/packages/`** — core + example files per optional package
+- **`pnpm sync:template`** — sync `examples/next-app` → `templates/app`
+
 ## v0.1.0 — 2026-06-29
 
 ### Added
 
-- **CLI `next-arch`**
+- **CLI `@yousxlfs/next-arch`**
   - `init <name>` — scaffold a Next.js 16 project with FSD structure
   - `init --cwd <path>` — create project in a specific directory
   - `generate <type> <name>` — generate `feature`, `view`, `widget`, or `entity` slices

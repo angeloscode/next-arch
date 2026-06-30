@@ -1,8 +1,11 @@
 import { log } from '@clack/prompts';
 import fs from 'fs-extra';
 import path from 'path';
+import type { PagePreset } from '../lib/page-presets.js';
+import { pageCommand } from './page.js';
 import { assertValidSliceName, toKebabCase, toPascalCase } from '../lib/naming.js';
 import { resolveTemplatesDir } from '../lib/paths.js';
+import { buildReplacements, renderTemplateDir } from '../lib/template.js';
 
 const SLICE_TYPES = ['feature', 'view', 'widget', 'entity'] as const;
 type SliceType = (typeof SLICE_TYPES)[number];
@@ -27,57 +30,33 @@ function assertNextProject(cwd: string): void {
   }
 }
 
-async function renderTemplateDir(
-  templateDir: string,
-  targetDir: string,
-  replacements: Record<string, string>,
-): Promise<string[]> {
-  const created: string[] = [];
-
-  if (!(await fs.pathExists(templateDir))) {
-    throw new Error(`Template "${path.basename(templateDir)}" not found.`);
-  }
-
-  const entries = await fs.readdir(templateDir, { withFileTypes: true });
-
-  for (const entry of entries) {
-    const sourcePath = path.join(templateDir, entry.name);
-    const renderedName = Object.entries(replacements).reduce(
-      (name, [from, to]) => name.replaceAll(from, to),
-      entry.name,
-    );
-    const targetPath = path.join(targetDir, renderedName);
-
-    if (entry.isDirectory()) {
-      await fs.ensureDir(targetPath);
-      created.push(...(await renderTemplateDir(sourcePath, targetPath, replacements)));
-      continue;
-    }
-
-    await fs.ensureDir(path.dirname(targetPath));
-    let content = await fs.readFile(sourcePath, 'utf8');
-    for (const [from, to] of Object.entries(replacements)) {
-      content = content.replaceAll(from, to);
-    }
-    await fs.writeFile(targetPath, content);
-    created.push(path.relative(process.cwd(), targetPath));
-  }
-
-  return created;
+export interface GenerateCommandOptions {
+  force?: boolean;
+  yes?: boolean;
+  preset?: string;
 }
 
 export async function generateCommand(
   type: string,
   name: string,
   projectRoot = process.cwd(),
-  options: { force?: boolean } = {},
+  options: GenerateCommandOptions = {},
 ): Promise<void> {
+  if (type === 'page') {
+    await pageCommand(name, projectRoot, {
+      force: options.force,
+      yes: options.yes,
+      preset: options.preset as PagePreset | undefined,
+    });
+    return;
+  }
+
   const root = path.resolve(projectRoot);
   assertNextProject(root);
   assertValidSliceName(name);
 
   if (!isSliceType(type)) {
-    throw new Error(`Unknown type "${type}". Use: ${SLICE_TYPES.join(', ')}`);
+    throw new Error(`Unknown type "${type}". Use: page, ${SLICE_TYPES.join(', ')}`);
   }
 
   const pascalName = toPascalCase(name);
@@ -99,15 +78,12 @@ export async function generateCommand(
       await fs.remove(targetDir);
     }
 
-    const replacements = {
-      '{{Name}}': pascalName,
-      '{{name}}': kebabName,
-    };
-
+    const replacements = buildReplacements(name, pascalName, kebabName);
     const created = await renderTemplateDir(templateDir, targetDir, replacements);
+    const relativeFiles = created.map((file) => path.relative(root, file));
 
     log.success(`Created ${type} "${kebabName}" in ${root}`);
-    for (const file of created) {
+    for (const file of relativeFiles) {
       log.info(`  ${file}`);
     }
 

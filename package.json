@@ -17,7 +17,8 @@
     "build": "turbo build",
     "lint": "turbo lint",
     "test": "turbo test",
-    "next-arch": "node packages/next-arch/dist/index.js"
+    "next-arch": "node packages/next-arch/dist/index.js",
+    "sync:template": "node packages/next-arch/scripts/sync-template.mjs"
   },
   "devDependencies": {
     "turbo": "latest"

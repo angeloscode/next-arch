@@ -1,7 +1,10 @@
 import { confirm, intro, log, outro } from '@clack/prompts';
 import fs from 'fs-extra';
 import path from 'path';
+import { applyPackageSelections } from '../lib/apply-packages.js';
 import { copyProjectTemplate } from '../lib/copy.js';
+import { promptInitSelections } from '../lib/init-prompts.js';
+import { formatSelectionsSummary } from '../lib/packages.js';
 import { getPackageRoot, resolveAppTemplateDir } from '../lib/paths.js';
 
 async function resolveEslintPluginSource(): Promise<string> {
@@ -48,12 +51,23 @@ async function patchPackageJson(targetDir: string, projectName: string): Promise
   await fs.writeFile(packageJsonPath, `${JSON.stringify(pkg, null, 2)}\n`);
 }
 
+export interface InitCommandOptions {
+  cwd?: string;
+  yes?: boolean;
+  noExamples?: boolean;
+}
+
 export async function initCommand(
   projectName: string,
-  options: { cwd?: string } = {},
+  options: InitCommandOptions = {},
 ): Promise<void> {
   const baseDir = path.resolve(options.cwd ?? process.cwd());
   intro('Creating new Next Architecture project...');
+
+  const selections = await promptInitSelections({
+    yes: options.yes,
+    noExamples: options.noExamples,
+  });
 
   const targetDir = path.join(baseDir, projectName);
   const templateDir = resolveAppTemplateDir();
@@ -69,15 +83,24 @@ export async function initCommand(
     }
   }
 
+  log.info('Package setup:');
+  for (const line of formatSelectionsSummary(selections)) {
+    log.info(`  ${line}`);
+  }
+
   log.info(`Copying template from ${path.basename(templateDir)}...`);
   await copyProjectTemplate(templateDir, targetDir);
   await bundleEslintPlugin(targetDir);
   await patchPackageJson(targetDir, projectName);
+  await applyPackageSelections(targetDir, selections);
   await fs.writeFile(path.join(targetDir, '.npmrc'), 'ignore-workspace=true\n');
 
   log.success(`Project "${projectName}" created`);
   log.info(`  cd ${projectName}`);
-  log.info('  pnpm install');
-  log.info('  pnpm dev');
+  log.info('  npm install');
+  log.info('  npm run dev');
+  if (selections.withExamples) {
+    log.info('  See src/features/_examples/ for commented package examples');
+  }
   outro('Done!');
 }

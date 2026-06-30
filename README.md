@@ -4,7 +4,7 @@
 
 **Архитектурные правила для Next.js 16 — чтобы ИИ и коллеги не могли сломать структуру проекта**
 
-[![npm](https://img.shields.io/npm/v/next-arch?style=flat-square&color=black)](https://www.npmjs.com/package/next-arch)
+[![npm](https://img.shields.io/npm/v/@yousxlfs/next-arch?style=flat-square&color=black)](https://www.npmjs.com/package/@yousxlfs/next-arch)
 [![npm](https://img.shields.io/npm/v/eslint-plugin-next-arch?style=flat-square&color=purple&label=eslint-plugin)](https://www.npmjs.com/package/eslint-plugin-next-arch)
 [![CI](https://github.com/yousxlfs/next-archi/actions/workflows/ci.yml/badge.svg)](https://github.com/yousxlfs/next-archi/actions/workflows/ci.yml)
 [![license](https://img.shields.io/github/license/yousxlfs/next-archi?style=flat-square)](./LICENSE)
@@ -59,7 +59,7 @@ import { useCart } from '../cart/hooks/useCart'
 
 | Пакет | Версия | Описание |
 |---|---|---|
-| [`next-arch`](./packages/next-arch) | [![npm](https://img.shields.io/npm/v/next-arch?style=flat-square)](https://npmjs.com/package/next-arch) | CLI — создаёт проекты и слайсы |
+| [`@yousxlfs/next-arch`](./packages/next-arch) | [![npm](https://img.shields.io/npm/v/@yousxlfs/next-arch?style=flat-square)](https://npmjs.com/package/@yousxlfs/next-arch) | CLI — создаёт проекты и слайсы |
 | [`eslint-plugin-next-arch`](./packages/eslint-plugin-next-arch) | [![npm](https://img.shields.io/npm/v/eslint-plugin-next-arch?style=flat-square)](https://npmjs.com/package/eslint-plugin-next-arch) | ESLint правила — защита архитектуры |
 
 ---
@@ -67,7 +67,7 @@ import { useCart } from '../cart/hooks/useCart'
 ## ⚡ Быстрый старт
 
 ```bash
-npx next-arch init my-app
+npx @yousxlfs/next-arch init my-app
 cd my-app
 pnpm install
 pnpm dev

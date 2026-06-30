@@ -24,7 +24,7 @@ pnpm build
 ### Create a project
 
 ```bash
-npx next-arch init my-app
+npx @yousxlfs/next-arch init my-app
 cd my-app
 pnpm install
 pnpm dev
