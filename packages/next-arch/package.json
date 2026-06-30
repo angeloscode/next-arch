@@ -1,6 +1,6 @@
 {
-  "name": "next-arch",
-  "version": "0.1.0",
+  "name": "@yousxlfs/next-arch",
+  "version": "0.1.1",
   "description": "CLI for scaffolding Next.js 16 projects with Feature-Sliced Design",
   "author": "yousxlfs",
   "license": "MIT",
@@ -50,6 +50,9 @@
   },
   "engines": {
     "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "type": "module"
 }

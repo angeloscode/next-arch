@@ -2,6 +2,12 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs-extra';
 
+const PACKAGE_NAMES = new Set(['next-arch', '@yousxlfs/next-arch']);
+
+function isNextArchPackage(pkg: { name?: string }): boolean {
+  return typeof pkg.name === 'string' && PACKAGE_NAMES.has(pkg.name);
+}
+
 function findPackageRoot(startDir: string): string {
   let current = startDir;
 
@@ -9,7 +15,7 @@ function findPackageRoot(startDir: string): string {
     const packageJsonPath = path.join(current, 'package.json');
     if (fs.existsSync(packageJsonPath)) {
       const pkg = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8')) as { name?: string };
-      if (pkg.name === 'next-arch') {
+      if (isNextArchPackage(pkg)) {
         return current;
       }
     }
