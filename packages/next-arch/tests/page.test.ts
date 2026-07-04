@@ -36,16 +36,16 @@ describe('page crud preset', () => {
       'utf8',
     );
 
-    expect(featureIndex).toContain("export { OrdersList } from './components/OrdersList'");
+    expect(featureIndex).toContain("export { OrdersList } from './ui/OrdersList'");
     expect(featureIndex).toContain('useOrdersListQuery');
-    expect(featureIndex).not.toMatch(/Product|Orderss/);
+    expect(featureIndex).not.toMatch(/Product|Orderss|components/);
     expect(listView).toContain('<OrdersList />');
     expect(listView).not.toMatch(/Product|Orderss/);
 
-    expect(await fs.pathExists(path.join(tmpDir, 'src/features/orders/components/OrdersList.tsx'))).toBe(
+    expect(await fs.pathExists(path.join(tmpDir, 'src/features/orders/ui/OrdersList.tsx'))).toBe(
       true,
     );
-    expect(await fs.pathExists(path.join(tmpDir, 'src/features/orders/components/OrdersForm.tsx'))).toBe(
+    expect(await fs.pathExists(path.join(tmpDir, 'src/features/orders/ui/OrdersForm.tsx'))).toBe(
       true,
     );
     expect(

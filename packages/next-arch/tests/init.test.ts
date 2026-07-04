@@ -53,4 +53,21 @@ describe('slice templates', () => {
     const appTemplate = path.join(resolveTemplatesDir(), 'app');
     expect(await fs.pathExists(path.join(appTemplate, 'AGENTS.md'))).toBe(true);
   });
+
+  it('full project type keeps entities and widgets layers', async () => {
+    const parentDir = path.join(baseDir, 'full-type');
+    await fs.ensureDir(parentDir);
+
+    await initCommand('full-app', {
+      outputDir: parentDir,
+      yes: true,
+      noExamples: true,
+      projectType: 'full',
+    });
+
+    const projectDir = path.join(parentDir, 'full-app');
+    expect(await fs.pathExists(path.join(projectDir, 'src/entities/user/index.ts'))).toBe(true);
+    expect(await fs.pathExists(path.join(projectDir, 'src/widgets/site-header/index.ts'))).toBe(true);
+    expect(await fs.pathExists(path.join(projectDir, 'src/views/HomeView/index.tsx'))).toBe(true);
+  });
 });
