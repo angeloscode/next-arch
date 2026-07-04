@@ -1,3 +1,4 @@
+export type ProjectType = 'full' | 'standard' | 'simple';
 export type StateManager = 'zustand' | 'redux' | 'jotai' | 'none';
 export type FormLibrary = 'tanstack-form' | 'react-hook-form' | 'none';
 
@@ -13,6 +14,7 @@ export type OptionalPackage =
   | 'sentry';
 
 export interface InitSelections {
+  projectType: ProjectType;
   stateManager: StateManager;
   formLibrary: FormLibrary;
   optionalPackages: OptionalPackage[];
@@ -20,6 +22,7 @@ export interface InitSelections {
 }
 
 export const DEFAULT_INIT_SELECTIONS: InitSelections = {
+  projectType: 'full',
   stateManager: 'zustand',
   formLibrary: 'tanstack-form',
   optionalPackages: ['tanstack-table'],
@@ -27,33 +30,37 @@ export const DEFAULT_INIT_SELECTIONS: InitSelections = {
 };
 
 export const PACKAGE_VERSIONS = {
-  zustand: '^5.0.14',
-  '@reduxjs/toolkit': '^2.8.2',
-  'react-redux': '^9.2.0',
-  jotai: '^2.12.5',
-  '@tanstack/react-form': '^1.0.0',
-  zod: '^4.4.3',
-  'react-hook-form': '^7.56.4',
-  '@hookform/resolvers': '^5.0.1',
-  '@tanstack/react-query': '^5.101.2',
-  '@tanstack/react-query-devtools': '^5.101.2',
-  '@tanstack/react-table': '^8.21.3',
-  motion: '^12.19.1',
-  nuqs: '^2.4.3',
-  '@trpc/client': '^11.1.2',
-  '@trpc/server': '^11.1.2',
-  '@trpc/react-query': '^11.1.2',
-  'better-auth': '^1.2.8',
-  uploadthing: '^7.7.2',
-  '@uploadthing/react': '^7.3.1',
-  sonner: '^2.0.3',
-  'next-intl': '^4.1.0',
-  '@sentry/nextjs': '^10.58.0',
+  zustand: '5.0.14',
+  '@reduxjs/toolkit': '2.8.2',
+  'react-redux': '9.2.0',
+  jotai: '2.12.5',
+  '@tanstack/react-form': '1.0.0',
+  zod: '4.4.3',
+  'react-hook-form': '7.56.4',
+  '@hookform/resolvers': '5.0.1',
+  '@tanstack/react-query': '5.101.2',
+  '@tanstack/react-query-devtools': '5.101.2',
+  '@tanstack/react-table': '8.21.3',
+  motion: '12.19.1',
+  nuqs: '2.4.3',
+  '@trpc/client': '11.1.2',
+  '@trpc/server': '11.1.2',
+  '@trpc/react-query': '11.1.2',
+  'better-auth': '1.2.8',
+  uploadthing: '7.7.2',
+  '@uploadthing/react': '7.3.1',
+  sonner: '2.0.3',
+  'next-intl': '4.1.0',
+  '@sentry/nextjs': '10.58.0',
 } as const;
 
 export interface ResolvedDependencies {
   dependencies: Record<string, string>;
   devDependencies: Record<string, string>;
+}
+
+export function isProjectType(value: string): value is ProjectType {
+  return value === 'full' || value === 'standard' || value === 'simple';
 }
 
 export function resolveDependencies(selections: InitSelections): ResolvedDependencies {
@@ -174,6 +181,12 @@ export function getPackageTemplates(selections: InitSelections): string[] {
 export function formatSelectionsSummary(selections: InitSelections): string[] {
   const lines: string[] = [];
 
+  const projectTypeLabels: Record<ProjectType, string> = {
+    full: 'Full app (all FSD layers)',
+    standard: 'Standard (features + entities + shared)',
+    simple: 'Simple (features + shared)',
+  };
+
   const stateLabels: Record<StateManager, string> = {
     zustand: 'Zustand',
     redux: 'Redux Toolkit',
@@ -187,6 +200,7 @@ export function formatSelectionsSummary(selections: InitSelections): string[] {
     none: 'None',
   };
 
+  lines.push(`Project type: ${projectTypeLabels[selections.projectType]}`);
   lines.push(`State: ${stateLabels[selections.stateManager]}`);
   lines.push(`Forms: ${formLabels[selections.formLibrary]}`);
   lines.push('Always: TanStack Query + Devtools');
@@ -200,7 +214,7 @@ export function formatSelectionsSummary(selections: InitSelections): string[] {
     uploadthing: 'Uploadthing',
     sonner: 'Sonner',
     'next-intl': 'next-intl',
-    'sentry': 'Sentry',
+    sentry: 'Sentry',
   };
 
   if (selections.optionalPackages.length > 0) {
