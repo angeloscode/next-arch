@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-next-arch",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "ESLint rules for Next Architecture (Feature-Sliced Design)",
   "author": "yousxlfs",
   "license": "MIT",
@@ -31,7 +31,8 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "scripts": {
     "build": "tsup",
