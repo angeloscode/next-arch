@@ -4,14 +4,14 @@
   "description": "CLI for scaffolding Next.js 16 projects with Feature-Sliced Design",
   "author": "yousxlfs",
   "license": "MIT",
-  "homepage": "https://github.com/yousxlfs/next-archi#readme",
+  "homepage": "https://github.com/yousxlfs/next-arch#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yousxlfs/next-archi.git",
+    "url": "git+https://github.com/yousxlfs/next-arch.git",
     "directory": "packages/next-arch"
   },
   "bugs": {
-    "url": "https://github.com/yousxlfs/next-archi/issues"
+    "url": "https://github.com/yousxlfs/next-arch/issues"
   },
   "keywords": [
     "nextjs",
