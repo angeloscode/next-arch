@@ -53,6 +53,12 @@ next-arch page orders --preset crud
 
 # architecture check (no full eslint run)
 next-arch doctor
+
+# remove a slice
+next-arch remove feature payments
+next-arch remove view dashboard
+next-arch rm entity user
+next-arch remove feature payments --force
 ```
 
 ### Useful flags
@@ -61,10 +67,15 @@ next-arch doctor
 |------|-------------|
 | `--output-dir <path>` | Parent folder for the new project |
 | `--project-type full\|standard\|simple` | How many FSD layers to keep |
-| `--cwd <path>` | Project root (generate / page / doctor) |
+| `--cwd <path>` | Project root (generate / page / doctor / remove) |
 | `-y` | Skip prompts |
-| `-f` | Force overwrite |
+| `-f` | Force overwrite or skip remove confirmation |
 | `--no-examples` | Skip `_examples/` |
+
+| Command | Description |
+|---------|-------------|
+| `remove <type> <name>` | Remove a FSD slice with confirmation |
+| `rm <type> <name>` | Alias for remove |
 
 ### Page presets
 
