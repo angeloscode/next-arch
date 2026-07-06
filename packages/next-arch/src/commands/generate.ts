@@ -6,21 +6,13 @@ import { pageCommand } from './page.js';
 import { assertValidSliceName, toKebabCase, toPascalCase } from '../lib/naming.js';
 import { resolveTemplatesDir } from '../lib/paths.js';
 import { assertNextProject, resolveProjectRoot } from '../lib/project-paths.js';
+import {
+  isSliceType,
+  SLICE_LAYER_DIRS,
+  SLICE_TYPES,
+  type SliceType,
+} from '../lib/slices.js';
 import { buildReplacements, renderTemplateDir } from '../lib/template.js';
-
-const SLICE_TYPES = ['feature', 'view', 'widget', 'entity'] as const;
-type SliceType = (typeof SLICE_TYPES)[number];
-
-const TARGET_DIRS: Record<SliceType, string> = {
-  feature: 'features',
-  view: 'views',
-  widget: 'widgets',
-  entity: 'entities',
-};
-
-function isSliceType(value: string): value is SliceType {
-  return SLICE_TYPES.includes(value as SliceType);
-}
 
 export interface GenerateCommandOptions {
   force?: boolean;
@@ -55,7 +47,7 @@ export async function generateCommand(
   const kebabName = toKebabCase(name);
   const templatesDir = resolveTemplatesDir();
   const templateDir = path.join(templatesDir, type);
-  const targetDir = path.join(root, 'src', TARGET_DIRS[type], kebabName);
+  const targetDir = path.join(root, 'src', SLICE_LAYER_DIRS[type], kebabName);
 
   const previousCwd = process.cwd();
   process.chdir(root);

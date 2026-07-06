@@ -253,9 +253,14 @@ next-arch page orders --preset crud    # auth | crud | dashboard | profile | set
 
 # quick check without full eslint run
 next-arch doctor
+
+# remove a slice
+next-arch remove feature payments
+next-arch rm view dashboard
+next-arch remove feature payments --force
 ```
 
-Flags worth knowing: `--output-dir`, `--project-type`, `--cwd`, `-f` (force overwrite).
+Flags worth knowing: `--output-dir`, `--project-type`, `--cwd`, `-f` (force overwrite / skip remove confirmation).
 
 ---
 

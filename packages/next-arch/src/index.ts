@@ -5,6 +5,7 @@ import { doctorCommand } from './commands/doctor.js';
 import { generateCommand } from './commands/generate.js';
 import { initCommand } from './commands/init.js';
 import { pageCommand } from './commands/page.js';
+import { removeCommand } from './commands/remove.js';
 import { isProjectType, type ProjectType } from './lib/packages.js';
 import type { PagePreset } from './lib/page-presets.js';
 import { resolveProjectRoot } from './lib/project-paths.js';
@@ -117,6 +118,25 @@ program
         outro('Done!');
       } catch (error) {
         cancel(error instanceof Error ? error.message : 'Generate failed');
+        process.exit(1);
+      }
+    },
+  );
+
+program
+  .command('remove <type> <name>')
+  .alias('rm')
+  .description('Remove a FSD slice')
+  .option('-C, --cwd <path>', 'path to Next.js project root (default: current directory)')
+  .option('-f, --force', 'skip confirmation prompt')
+  .action(
+    async (type: string, name: string, options: { cwd?: string; force?: boolean }) => {
+      try {
+        await removeCommand(type, name, resolveProjectRoot(options.cwd), {
+          force: options.force,
+        });
+      } catch (error) {
+        cancel(error instanceof Error ? error.message : 'Remove failed');
         process.exit(1);
       }
     },
